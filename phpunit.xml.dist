@@ -1,0 +1,8 @@
+<phpunit color="true"
+         bootstrap="tests/bootstrap.php" >
+    <testsuites>
+        <testsuite name="Mad cat Test Suite ORM">
+            <directory>tests/ORM</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
