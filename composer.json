@@ -1,5 +1,5 @@
 {
     "autoload": {
-        "psr-0": {"ORM": "/app"}
+        "psr-0": {"ORM": "app/"}
     }
 }
