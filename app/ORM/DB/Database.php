@@ -50,7 +50,7 @@ class Database {
 
     public function bind($params, $value, $type = null){
         if(is_null($type)) {
-            switch ($value) {
+            switch (true) {
                 case is_int($value):
                     $type = PDO::PARAM_INT;
                     break;
@@ -130,13 +130,13 @@ class Database {
         return $this->_statement->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function objectArray($class , array $ctorargs = null) {
+    public function objectResult($class , $ctorargs = [] ) {
         $this->execute();
         $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
         return $this->_statement->fetchAll();
     }
 
-    public function objectSingle($class, array $ctorargs = null) {
+    public function objectSingle($class, $ctorargs = [] ) {
         $this->execute();
         $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
         return $this->_statement->fetch();
