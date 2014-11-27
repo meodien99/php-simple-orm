@@ -7,6 +7,9 @@ class Database {
     public static $DB;
 
     private $_db_engine = 'mysql';
+    private $_error;
+    private $_statement;
+
 
     private function __construct(){
         $config = $this->dataConfig($this->_db_engine);
@@ -14,13 +17,13 @@ class Database {
         if(!is_null($config)){
             try {
                 if($this->_db_engine == 'mysql'){
-                    $sql = "mysql::host=" . $config['host'] . ";dbname=" . $config['db'];
-                    self::$DB = new PDO($sql, $config['user'], $config['pass']);
+                    $dns = "mysql::host=" . $config['host'] . ";dbname=" . $config['db'];
+                    self::$DB = new PDO($dns, $config['user'], $config['pass']);
                 } else if ($this->_db_engine == 'sqlite'){
-
+                    self::$DB = new PDO($config['memory']);
                 }
                     self::$DB->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                    self::$DB->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+//                    self::$DB->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
             } catch (\PDOException $e) {
                 echo "Connection Error: " . $e->getMessage();
             }
@@ -39,5 +42,83 @@ class Database {
             self::$DB = new self();
         }
         return self::$DB;
+    }
+
+    public function prepare($query){
+        $this->_statement = self::$DB->prepare($query);
+    }
+
+    public function bind($params, $value, $type = null){
+        if(is_null($type)) {
+            switch ($value) {
+                case is_int($value):
+                    $type = PDO::PARAM_INT;
+                    break;
+                case is_bool($value):
+                    $type = PDO::PARAM_BOOL;
+                    break;
+                case is_null($value):
+                    $type = PDO::PARAM_NULL;
+                    break;
+                default :
+                    $type = PDO::PARAM_STR;
+            }
+        }
+        $this->_statement->bindValue($params, $value, $type);
+    }
+
+    public function execute(){
+        $this->_statement->execute();
+    }
+
+    public function select($table, $where = '', $fields = '*', $order = '', $limit = null, $offset = '') {
+        $query = "SELECT {$fields} FROM {$table} "
+                .($where ? "WHERE {$where} " : '' )
+                .($limit ? "LIMIT {$limit} " : '' )
+                .(($offset && $limit) ? "OFFSET {$offset} ": '')
+                .($order ? "ORDER BY {$order} " : '');
+        $this->prepare($query);
+    }
+
+    public function insert($table, array $data){
+        ksort($data);
+
+        $fieldNames = implode(',', array_keys($data));
+        $fieldValues = ':'.implode(", :", array_keys($data));
+
+        $query = "INSERT INTO {$table} ({$$fieldNames}) VALUES({$$fieldValues})";
+        $this->prepare($query);
+
+        foreach($data as $key=>$value){
+            $this->bind(":$key", $value);
+        }
+        $this->execute();
+    }
+
+    public function update($table, array $data, $where = '') {
+        ksort($data);
+        $fieldDetails = NULL;
+        foreach ($data as $key => $value) {
+            $fieldDetails .= "$key = :$key,";
+        }
+        $fieldDetails = rtrim($fieldDetails, ",");
+
+        $query = "UPDATE {$table} SET {$fieldDetails} ". ($where ? "WHERE {$where}": ' ');
+        $this->prepare($query);
+
+        foreach ($data as $key => $value){
+            $this->bind(":$key", $value);
+        }
+
+        $this->execute();
+    }
+
+    public function delete($table, $where, $limit = 1) {
+        $this->prepare("DELETE FROM {$table} WHERE {$where} LIMIT $limit");
+        $this->execute();
+    }
+
+    public function single(){
+
     }
 } 
