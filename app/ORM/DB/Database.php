@@ -118,7 +118,51 @@ class Database {
         $this->execute();
     }
 
-    public function single(){
+    public function resultArray(){
+        $this->execute();
 
+        return $this->_statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function singleArray(){
+        $this->execute();
+
+        return $this->_statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function objectArray($class , array $ctorargs = null) {
+        $this->execute();
+        $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
+        return $this->_statement->fetchAll();
+    }
+
+    public function objectSingle($class, array $ctorargs = null) {
+        $this->execute();
+        $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
+        return $this->_statement->fetch();
+    }
+
+    public function rowCount(){
+        return $this->_statement->rowCount();
+    }
+
+    public function lastInsertId(){
+        return $this->_statement->lastInsertId();
+    }
+
+    public function beginTransaction(){
+        return $this->_statement->beginTransaction();
+    }
+
+    public function commit(){
+        return $this->_statement->commit();
+    }
+
+    public function rollBack(){
+        return $this->_statement->rollBack();
+    }
+
+    public function debugDumpParams(){
+        return $this->_statement->debugDumpParams();
     }
 } 
