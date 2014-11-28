@@ -1,5 +1,5 @@
 <?php
-namespace app\ORM\Entities;
+namespace ORM\Entities;
 
 
 final class EntityState {
