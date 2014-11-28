@@ -104,11 +104,12 @@ class Database {
         ksort($data);
         $fieldDetails = NULL;
         foreach ($data as $key => $value) {
-            $fieldDetails .= "$key = :$key,";
+            $fieldDetails .= "$key=:$key,";
         }
         $fieldDetails = rtrim($fieldDetails, ",");
 
         $query = "UPDATE {$table} SET {$fieldDetails} ". ($where ? "WHERE {$where}": ' ');
+
         $this->prepares($query);
 
         foreach ($data as $key => $value){
@@ -137,12 +138,14 @@ class Database {
 
     public function objectResult($class , $ctorargs = [] ) {
         $this->execute();
-        return $this->_statement->fetchAll(PDO::FETCH_CLASS, $class, $ctorargs);
+        $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
+        return $this->_statement->fetchAll();
     }
 
     public function objectSingle($class, $ctorargs = [] ) {
         $this->execute();
-        return $this->_statement->fetch(PDO::FETCH_CLASS, $class, $ctorargs);
+        $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
+        return $this->_statement->fetch();
     }
 
     public function rowCount(){

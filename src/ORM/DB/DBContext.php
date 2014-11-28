@@ -31,7 +31,7 @@ class DBContext {
         }
         $this->_db->select($entity->getTable(), $where, $field, $order, $limit, $offset);
 
-        return $this->_db->objectResult($entity->getClass());
+        return $this->_db->objectSingle($entity->getClass());
 //        return $this->_db->resultArray();
     }
 
@@ -59,14 +59,16 @@ class DBContext {
             switch($entity->state) {
                 case EntityState::CREATED:
                     foreach ($entity->getFields() as $key) {
-                        $data[$key] = $entity->$key;
+                        if(isset($entity->$key))
+                            $data[$key] = $entity->$key;
                     }
 
                     $this->_db->insert($entity->getTable(), $data);
                     break;
                 case EntityState::MODIFIED:
                     foreach($entity->getFields() as $key){
-                        $data[$key] = $entity->$key;
+                        if(isset($entity->$key))
+                            $data[$key] = $entity->$key;
                     }
                     $where = '';
                     foreach ($entity->getPrimaryKey() as $key){
@@ -95,16 +97,19 @@ class DBContext {
     public function add($entity) {
         $entity->state = EntityState::CREATED;
         array_push($this->entities, $entity);
+        return $this;
     }
 
     public function update($entity) {
         $entity->state = EntityState::MODIFIED;
         array_push($this->entities, $entity);
+        return $this;
     }
 
     public function remove($entity) {
         $entity->state = EntityState::DELETED;
         array_push($this->entities, $entity);
+        return $this;
     }
 
     private function entityFromString($entity) {

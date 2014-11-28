@@ -5,7 +5,7 @@ use ORM\DB\Database;
 class Entity {
 
     private $_db;
-
+    public $id;
     protected $fields = [];
     protected $table;
     protected $primary_keys = [];
@@ -15,21 +15,15 @@ class Entity {
         $this->_db = Database::getInstance();
     }
 
-    public function add(){
-        $data = [];
+    public function add(array $data){
+        /*$data = [];
         foreach ($this->fields as $key){
             $data[$key] = $this->$key;
-        }
+        }*/
         $this->_db->insert($this->table, $data);
     }
 
-    public function update(){
-        $data = [];
-        foreach ($this->fields as $key) {
-            if(!is_null($key))
-                $data[$key] = $this->$key;
-        }
-
+    public function update(array $data){
         $where = '';
         foreach ($this->primary_keys as $key) {
             $where .= ' '. $key .' = '. $this->$key .' &&';
