@@ -6,14 +6,11 @@ class Entity {
 
     private $_db;
 
-    public $fields = [];
-    public $table;
-    public $primary_keys = [];
+    protected  $fields = [];
+    protected $table;
+    protected $primary_keys = [];
 
     public function __construct(){
-        foreach($this->fields as $field){
-            $this->{$field} = null;
-        }
         $this->class = get_class($this);
         $this->_db = Database::getInstance();
     }
@@ -48,5 +45,17 @@ class Entity {
         }
         $where = rtrim($where, ' &&');
         $this->_db->delete($this->table, $where);
+    }
+
+    public function getFields(){
+        return $this->fields;
+    }
+
+    public function getTable(){
+        return $this->table;
+    }
+
+    public function getClass(){
+        return $this->class;
     }
 } 

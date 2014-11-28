@@ -137,15 +137,12 @@ class Database {
 
     public function objectResult($class , $ctorargs = [] ) {
         $this->execute();
-        $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
-        return $this->_statement->fetchAll();
+        return $this->_statement->fetchAll(PDO::FETCH_CLASS, $class, $ctorargs);
     }
 
     public function objectSingle($class, $ctorargs = [] ) {
         $this->execute();
-        $this->_statement->setFetchMode(PDO::FETCH_CLASS, $class, $ctorargs);
-
-        return $this->_statement->fetch();
+        return $this->_statement->fetch(PDO::FETCH_CLASS, $class, $ctorargs);
     }
 
     public function rowCount(){

@@ -1,35 +1,39 @@
 <?php
-namespace app\ORM\DB;
+namespace ORM\DB;
 
-use app\ORM\Entities\EntityState;
+use ORM\Entities\EntityState;
 /**
  * Class DBContext
  * DATA MAPPING LAYER
- * @package app\ORM\DB
+ * @package src\ORM\DB
  */
 class DBContext {
 
     private $_db;
-    private $entites = [];
+    private $entities = [];
 
     public function __construct(){
         $this->_db = Database::getInstance();
+
     }
 
     public function find($entity, $conditions = [], $field = '*', $order = '', $limit = null, $offset = '') {
+        $entity = $this->entityFromString($entity);
         $where = '';
 
-        foreach($conditions as $key => $value){
-            if(is_string($value))
-                $where .= ' '. $key .' = "'. $value . '"'.' &&';
-            else
-                $where .= ' '. $key .' = '. $value .' &&';
+        if(count($conditions) > 0 ){
+            foreach($conditions as $key => $value){
+                if(is_string($value))
+                    $where .= ' '. $key .' = "'. $value . '"'.' &&';
+                else
+                    $where .= ' '. $key .' = '. $value .' &&';
+            }
+            $where = rtrim($where, " &&");
         }
+        $this->_db->select($entity->getTable(), $where, $field, $order, $limit, $offset);
 
-        $where = rtrim($where, " &&");
-
-        $this->_db->select($entity->table, $where, $field, $order, $limit, $offset);
-        return $this->_db->objectSingle($entity->class);
+        return $this->_db->objectResult($entity->getClass());
+//        return $this->_db->resultArray();
     }
 
     public function all($entity, $conditions = [], $field = '*', $order = '', $limit = null, $offset = ''){
@@ -50,7 +54,7 @@ class DBContext {
 
     public function save(){
         $data = [];
-        foreach($this->entites as $entity) {
+        foreach($this->entities as $entity) {
             switch($entity->state) {
                 case EntityState::CREATED:
                     foreach ($entity->fields as $key) {
@@ -84,21 +88,26 @@ class DBContext {
                     break;
             }
         }
-        unset($this->entites);
+        unset($this->entities);
     }
 
     public function add($entity) {
         $entity->state = EntityState::CREATED;
-        array_push($this->entites, $entity);
+        array_push($this->entities, $entity);
     }
 
     public function update($entity) {
         $entity->state = EntityState::MODIFIED;
-        array_push($this->entites, $entity);
+        array_push($this->entities, $entity);
     }
 
     public function remove($entity) {
         $entity->state = EntityState::DELETED;
-        array_push($this->entites, $entity);
+        array_push($this->entities, $entity);
+    }
+
+    private function entityFromString($entity) {
+        $name = "ORM\\Models\\{$entity}";
+        return new $name();
     }
 } 
