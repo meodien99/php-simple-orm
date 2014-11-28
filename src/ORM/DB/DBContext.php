@@ -14,7 +14,6 @@ class DBContext {
 
     public function __construct(){
         $this->_db = Database::getInstance();
-
     }
 
     public function find($entity, $conditions = [], $field = '*', $order = '', $limit = null, $offset = '') {
@@ -37,19 +36,21 @@ class DBContext {
     }
 
     public function all($entity, $conditions = [], $field = '*', $order = '', $limit = null, $offset = ''){
+        $entity = $this->entityFromString($entity);
+
         $where = '';
-
-        foreach($conditions as $key => $value){
-            if(is_string($value))
-                $where .= ' '. $key .' = "'. $value . '"'.' &&';
-            else
-                $where .= ' '. $key .' = '. $value .' &&';
+        if(count($conditions) > 0 ){
+            foreach($conditions as $key => $value){
+                if(is_string($value))
+                    $where .= ' '. $key .' = "'. $value . '"'.' &&';
+                else
+                    $where .= ' '. $key .' = '. $value .' &&';
+            }
         }
-
         $where = rtrim($where, " &&");
 
-        $this->_db->select($entity->table, $where, $field, $order, $limit, $offset);
-        return $this->_db->objectResult($entity->class);
+        $this->_db->select($entity->getTable(), $where, $field, $order, $limit, $offset);
+        return $this->_db->objectResult($entity->getClass());
     }
 
     public function save(){
@@ -57,32 +58,32 @@ class DBContext {
         foreach($this->entities as $entity) {
             switch($entity->state) {
                 case EntityState::CREATED:
-                    foreach ($entity->fields as $key) {
+                    foreach ($entity->getFields() as $key) {
                         $data[$key] = $entity->$key;
                     }
 
-                    $this->_db->insert($entity->table, $data);
+                    $this->_db->insert($entity->getTable(), $data);
                     break;
                 case EntityState::MODIFIED:
-                    foreach($entity->fields as $key){
+                    foreach($entity->getFields() as $key){
                         $data[$key] = $entity->$key;
                     }
                     $where = '';
-                    foreach ($entity->primary_keys as $key){
+                    foreach ($entity->getPrimaryKey() as $key){
                         $where .= ' '. $key .' = '. $entity->$key.' &&';
                     }
                     $where = rtrim($where, ' &&');
 
-                    $this->_db->update($entity->table, $data, $where);
+                    $this->_db->update($entity->getTable(), $data, $where);
                     break;
                 case EntityState::DELETED:
                     $where = '';
-                    foreach($entity->primary_keys as $key){
+                    foreach($entity->getPrimaryKey() as $key){
                         $where .=' '. $key .' = '. $entity->$key . ' &&';
                     }
                     $where = rtrim($where, ' &&');
 
-                    $this->_db->delete($entity->table, $where);
+                    $this->_db->delete($entity->getTable(), $where);
                     break;
                 default:
                     break;

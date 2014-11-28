@@ -6,7 +6,7 @@ class Entity {
 
     private $_db;
 
-    protected  $fields = [];
+    protected $fields = [];
     protected $table;
     protected $primary_keys = [];
 
@@ -57,5 +57,9 @@ class Entity {
 
     public function getClass(){
         return $this->class;
+    }
+
+    public function getPrimaryKey(){
+        return $this->primary_keys;
     }
 } 
