@@ -10,7 +10,7 @@ return [
         ],
         'sqlite' => [
             'memory' => 'sqlite::memory',
-            'file'   => 'sqlite::database.sqlite'
+            'file'   => 'sqlite:database.sqlite'
         ]
     ],
 ];
