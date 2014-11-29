@@ -6,7 +6,7 @@ class Database {
 
     public static $DB;
 
-    private $_db_engine = 'mysql';
+    private $_db_engine = 'sqlite';
     private $_db_connect;
     private $_error;
     private $_statement;
@@ -170,5 +170,9 @@ class Database {
 
     public function debugDumpParams(){
         return $this->_statement->debugDumpParams();
+    }
+
+    public function exec($query){
+        return $this->_db_connect->exec($query);
     }
 } 
