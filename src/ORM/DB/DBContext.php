@@ -116,4 +116,14 @@ class DBContext {
         $name = "ORM\\Models\\{$entity}";
         return new $name();
     }
+
+    public function init($queries){
+        if(is_array($queries)){
+            foreach($queries as $query){
+                $this->_db->exec($query);
+            }
+        } else if (is_string($queries)){
+            $this->_db->exec($queries);
+        }
+    }
 } 
