@@ -16,6 +16,16 @@ class DBContext {
         $this->_db = Database::getInstance();
     }
 
+    /**
+     * Return specify entity
+     * @param string $entity
+     * @param array $conditions
+     * @param string $field
+     * @param string $order
+     * @param null $limit
+     * @param string $offset
+     * @return mixed
+     */
     public function find($entity, $conditions = [], $field = '*', $order = '', $limit = null, $offset = '') {
         $entity = $this->entityFromString($entity);
         $where = '';
@@ -35,6 +45,16 @@ class DBContext {
 //        return $this->_db->resultArray();
     }
 
+    /**
+     * Return All Entities
+     * @param string $entity
+     * @param array $conditions
+     * @param string $field
+     * @param string $order
+     * @param null $limit
+     * @param string $offset
+     * @return mixed
+     */
     public function all($entity, $conditions = [], $field = '*', $order = '', $limit = null, $offset = ''){
         $entity = $this->entityFromString($entity);
 
@@ -53,6 +73,10 @@ class DBContext {
         return $this->_db->objectResult($entity->getClass());
     }
 
+    /**
+     * Save to Db
+     * @return void
+     */
     public function save(){
         $data = [];
         foreach($this->entities as $key => $entity) {
@@ -94,6 +118,11 @@ class DBContext {
         unset($this->entities);
     }
 
+    /**
+     * @param object $entity
+     * @param Int $state
+     * @return $this
+     */
     private function action ($entity, $state) {
         if(!isset($this->entities))
             $this->entities = [];
@@ -102,23 +131,44 @@ class DBContext {
         return $this;
     }
 
+    /**
+     * @param mixed $entity
+     * @return $this
+     */
     public function add($entity) {
         return $this->action($entity, EntityState::CREATED);
     }
 
+    /**
+     * @param mixed $entity
+     * @return $this
+     */
     public function update($entity) {
         return $this->action($entity, EntityState::MODIFIED);
     }
 
+    /**
+     * @param mixed $entity
+     * @return $this
+     */
     public function remove($entity) {
         return $this->action($entity, EntityState::DELETED);
     }
 
+    /**
+     * Convert string to object
+     * @param string $entity
+     * @return mixed
+     */
     private function entityFromString($entity) {
         $name = "ORM\\Models\\{$entity}";
         return new $name();
     }
 
+    /**
+     * @param array|string $queries
+     * @return void
+     */
     public function init($queries){
         if(is_array($queries)){
             foreach($queries as $query){

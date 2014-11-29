@@ -15,6 +15,9 @@ class Entity {
         $this->_db = Database::getInstance();
     }
 
+    /**
+     * @param array $data
+     */
     public function add(array $data){
         /*$data = [];
         foreach ($this->fields as $key){
@@ -23,6 +26,9 @@ class Entity {
         $this->_db->insert($this->table, $data);
     }
 
+    /**
+     * @param array $data
+     */
     public function update(array $data){
         $where = '';
         foreach ($this->primary_keys as $key) {
