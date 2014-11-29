@@ -55,7 +55,7 @@ class DBContext {
 
     public function save(){
         $data = [];
-        foreach($this->entities as $entity) {
+        foreach($this->entities as $key => $entity) {
             switch($entity->state) {
                 case EntityState::CREATED:
                     foreach ($entity->getFields() as $key) {
@@ -94,22 +94,24 @@ class DBContext {
         unset($this->entities);
     }
 
-    public function add($entity) {
-        $entity->state = EntityState::CREATED;
+    private function action ($entity, $state) {
+        if(!isset($this->entities))
+            $this->entities = [];
+        $entity->state = $state;
         array_push($this->entities, $entity);
         return $this;
+    }
+
+    public function add($entity) {
+        return $this->action($entity, EntityState::CREATED);
     }
 
     public function update($entity) {
-        $entity->state = EntityState::MODIFIED;
-        array_push($this->entities, $entity);
-        return $this;
+        return $this->action($entity, EntityState::MODIFIED);
     }
 
     public function remove($entity) {
-        $entity->state = EntityState::DELETED;
-        array_push($this->entities, $entity);
-        return $this;
+        return $this->action($entity, EntityState::DELETED);
     }
 
     private function entityFromString($entity) {

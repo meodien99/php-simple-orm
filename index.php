@@ -7,16 +7,24 @@ use ORM\Models\User;
 
 $db = new DBContext();
 
+$queries = [
+    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username VARCHAR(255), email VARCHAR(255), age INTEGER(11) NOT NULL, gender VARCHAR(255))",
+    "INSERT INTO users(username, email, age, gender) VALUES('username1', 'email1@mail.test.com', 21, 'male')",
+    "INSERT INTO users(username, email, age, gender) VALUES('username2', 'email2@mail.test.com', 31, 'male')",
+    "INSERT INTO users(username, email, age, gender) VALUES('username3', 'email3@mail.test.com', 41, 'female')",
+];
+
+$db->init($queries);
 /****ADD NEW USER****/
-###### I ######
+###### NEW I ######
 $user1 = new User();
 $user1->username = "User 1";
 $user1->email = "User1@google.mail.com";
 $user1->age = 31;
 $user1->gender = "male";
-#WORKED !>> $db->add($user1)->save();
+$db->add($user1)->save();
 
-###### II ######
+###### NEW II ######
 $user2 = new User();
 $data = [
     'username' => 'User 2',
@@ -24,33 +32,37 @@ $data = [
     'age'      => 21,
     'gender'   => 'female'
 ];
-#WORKED !>> $user2->add($data);
+$user2->add($data);
 
 /*********UPDATE**********/
-######### I #########
+######### EDIT I #########
 $user_edit1 = $db->find("User", ['id'=>'3']);
 $user_edit1->email = "User1.updated@google.mail.com";
-#WORKED !>> $db->update($user)->save();
+$db->update($user_edit1)->save();
 
-######### II #########
+######### EDIT II #########
 $user_edit2 = $db->find("User", ['id'=>'2']);
 $data = [
     'email' => 'User2.updated@updated.com',
     'username' => 'username2'
 ];
-#WORKED !>> $user_edit2->update($data);
+//$user_edit2->update($data);
 
 /**********DELETE***********/
-######### I #########
+######### DELETE I #########
 
-#WORKED !>>$db->remove($user_edit1)->save();
+//$db->remove($user_edit1)->save();
 
-######### II ##########
+######### DELETE II ##########
 
-#WORKED !>>$user_edit2->remove();
+//$user_edit2->remove();
 /****Output****/
 $users = $db->all("User");
 
 foreach($users as $user){
     echo $user->info()."\n";
 }
+
+/**********CLEAN *************/
+$queries = "DROP TABLE users";
+$db->init($queries);
